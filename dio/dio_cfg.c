@@ -10,6 +10,7 @@
 * Includes
 **********************************************************************/
 #include "dio_cfg.h" /**< For this modules definitions */
+#include "RTE_device.h"
 /*********************************************************************
 * Module Variable Definitions
 **********************************************************************/
@@ -24,7 +25,11 @@ static const DioConfig_t DioConfig[] =
 {
   //TODO: configure your pins
   { PA0, DIO_DIR_OUTPUT, DIO_STATE_LOW, DIO_MODE_1 },
-  { PA1, DIO_DIR_OUTPUT, DIO_STATE_LOW, DIO_MODE_1 }
+  { PA1, DIO_DIR_OUTPUT, DIO_STATE_LOW, DIO_MODE_1 },
+  { SPI0_CLK_PIN, DIO_DIR_OUTPUT, DIO_STATE_LOW, SPI0_CLK_ALT},
+  { SPI0_SS_PIN, DIO_DIR_OUTPUT, DIO_STATE_LOW, SPI0_SS_ALT},
+  { SPI0_MOSI_PIN, DIO_DIR_OUTPUT, DIO_STATE_LOW, SPI0_MOSI_ALT},
+  { SPI0_MISO_PIN, DIO_DIR_INPUT, DIO_STATE_LOW, SPI0_MISO_ALT}
 };
 
 static const DioInitConfig_t DioInitConfig = 

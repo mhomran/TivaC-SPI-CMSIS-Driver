@@ -83,9 +83,9 @@ Dio_Init(const DioInitConfig_t * Config)
       Port = Channels[i].Channel / DIO_CHANNELS_PER_PORT;
 
       if(Dio_EnableClk(Port) == 0)
-  {
-    while(1);
-  }
+	{
+	  while(1);
+	}
 
       Dio_SetPinDirection(Channels[i].Channel, Channels[i].Direction);
       if(Channels[i].Direction == DIO_DIR_OUTPUT)
@@ -347,9 +347,9 @@ Dio_EnableClk(uint8_t Port)
       uint16_t timeout = 0xFFFF;
       RCGCGPIO |= 1 << Port;
       while(!(PRGPIO & (1 << Port)) && timeout != 0)
-        {
-          timeout--;
-        }
+	{
+	  timeout--;
+	}
       return (timeout != 0);
     }
 }
