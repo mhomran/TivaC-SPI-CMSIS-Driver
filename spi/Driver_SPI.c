@@ -30,7 +30,7 @@
 /**********************************************************************
 * Module Variable Definitions
 **********************************************************************/
-ARM_SPI_SignalEvent_t gSPI0_CallBack = ((ARM_SPI_SignalEvent_t)NULL);
+ARM_SPI_SignalEvent_t gSPI_CallBack[4];
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -89,10 +89,22 @@ ARM_SPI_GetCapabilities(void)
  * @return int32_t 
  */
 static int32_t 
-ARM_SPI_Initialize(ARM_SPI_SignalEvent_t cb_event)
+ARM_SPI_Initialize(uint8_t QSSIID, ARM_SPI_SignalEvent_t cb_event)
 {
-  gSPI0_CallBack = cb_event;
+  gSPI_CallBack[QSSIID] = cb_event;
   return ARM_DRIVER_OK;
+}
+
+/**
+ * @brief Assign the callback and any necessary hardware that SPI0 uses
+ * (e.g. GPIO)
+ * @param cb_event 
+ * @return int32_t 
+ */
+static int32_t 
+ARM_SPI0_Initialize(ARM_SPI_SignalEvent_t cb_event)
+{
+  return ARM_SPI_Initialize(0, cb_event);
 }
 
 /**
@@ -138,6 +150,7 @@ ARM_SPI_PowerControl(ARM_POWER_STATE state)
   return ARM_DRIVER_OK;
 }
 
+
 /**
  * @brief 
  * 
@@ -146,10 +159,23 @@ ARM_SPI_PowerControl(ARM_POWER_STATE state)
  * @return int32_t 
  */
 static int32_t 
-ARM_SPI_Send(const void *data, uint32_t num)
+ARM_SPI_Send(volatile QssiHandle_t* QSSI, const void *data, uint32_t num)
 {
-  QSSI0->DR = *((const uint8_t*)data);
+  QSSI->DR = *((const uint8_t*)data);
   return ARM_DRIVER_OK;
+}
+
+/**
+ * @brief 
+ * 
+ * @param data a pointer to the data items to be sent
+ * @param num the number of items to be sent
+ * @return int32_t 
+ */
+static int32_t 
+ARM_SPI0_Send(const void *data, uint32_t num)
+{
+  return ARM_SPI_Send(QSSI0, data, num);
 }
 
 /**
@@ -164,6 +190,19 @@ ARM_SPI_Receive(void *data, uint32_t num)
 {
   *((uint8_t*)data) = (uint8_t)(QSSI0->DR);
   return ARM_DRIVER_OK;
+}
+
+/**
+ * @brief 
+ * 
+ * @param data a pointer to the data items to be received
+ * @param num the number of items to be sent
+ * @return int32_t 
+ */
+static int32_t 
+ARM_SPI0_Receive(const void *data, uint32_t num)
+{
+  return ARM_SPI_Receive(QSSI0, data, num);
 }
 
 static int32_t 
@@ -402,15 +441,15 @@ ARM_SPI_Control(volatile QssiHandle_t* QSSI, uint32_t control, uint32_t arg)
 static ARM_SPI_STATUS 
 ARM_SPI_GetStatus(void)
 {
-    ARM_SPI_STATUS status = {0};
-    return status;
+  ARM_SPI_STATUS status = {0};
+  return status;
 }
 
 static void 
-ARM_SPI_SignalEvent(uint32_t event)
+ARM_SPI0_SignalEvent(uint32_t event)
 {
   // function body
-  if(gSPI0_CallBack != NULL)
+  if(gSPI_CallBack[0] != NULL)
     {
       gSPI0_CallBack(event);
     }
@@ -423,11 +462,11 @@ ARM_DRIVER_SPI Driver_SPI0;
 ARM_DRIVER_SPI Driver_SPI0 = {
   ARM_SPI_GetVersion,
   ARM_SPI_GetCapabilities,
-  ARM_SPI_Initialize,
+  ARM_SPI0_Initialize,
   ARM_SPI_Uninitialize,
   ARM_SPI_PowerControl,
-  ARM_SPI_Send,
-  ARM_SPI_Receive,
+  ARM_SPI0_Send,
+  ARM_SPI0_Receive,
   ARM_SPI_Transfer,
   ARM_SPI_GetDataCount,
   ARM_SPI0_Control,
